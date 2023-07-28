@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-  <title>Home</title>
+  <title>The Story of Homeruns</title>
 
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="./css/style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"
     integrity="sha512-M7nHCiNUOwFt6Us3r8alutZLm9qMt4s9951uo8jqO4UwJ1hziseL6O3ndFyigx6+LREfZqnhHxYjKRJ8ZQ69DQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -19,7 +19,31 @@
 </head>
 
 <body>
-  <h1>Hello World!</h1>
+  <div class="container">
+    <h1>The Story of Homeruns</h1>
+    <p>How homeruns are made in MLB 2022 regular season?</p>
+
+    <ul class="navigation">
+      <li><a href="?page=1">1</a></li>
+      <li><a href="?page=2">2</a></li>
+      <li><a href="?page=3">3</a></li>
+      <li><a href="?page=4">4</a></li>
+      <li><a href="?page=5">5</a></li>
+      <li><a href="?page=6">6</a></li>
+    </ul>
+
+    <div class="content">
+      <div class="description">
+        <h2>Pitches by team</h2>
+        <p>708,540 balls are thrown to batters during the MLB regular season in 2022.</p>
+      </div>
+
+      <div class="chart">
+        <div class="tooltip"></div>
+        <svg width="700" height="400"></svg>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>

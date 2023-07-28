@@ -1,3 +1,149 @@
 body * {
   display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+}
+
+h1 + p,
+h2 + p {
+  margin-top: 10px;
+}
+
+.container {
+  width: 992px;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.navigation {
+  padding: 20px 0;
+}
+
+.navigation a {
+  border-color: #000;
+  border-style: solid;
+  border-width: 1px;
+  color: #000;
+  padding: 4px 8px;
+}
+
+.description {
+  flex-direction: column;
+  flex: 1;
+}
+
+.chart {
+  width: 700px;
+  margin-left: 20px;
+}
+
+.tooltip {
+  padding: 5px;
+  background-color: #fff;
+  border: 1px solid #000;
+  visibility: hidden;
+  font-size: 12px;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.tooltip img {
+  width: 20px;
+  height: 20px;
+}
+
+.team-ATL {
+  background-color: #ce1141;
+}
+.team-ARI {
+  background-color: #a71930;
+}
+.team-BAL {
+  background-color: #df4601;
+}
+.team-BOS {
+  background-color: #bd3039;
+}
+.team-CHC {
+  background-color: #0e3386;
+}
+.team-CIN {
+  background-color: #c6011f;
+}
+.team-CLE {
+  background-color: #e31937;
+}
+.team-COL {
+  background-color: #33006f;
+}
+.team-CWS {
+  background-color: #000000;
+}
+.team-DET {
+  background-color: #182d55;
+}
+.team-HOU {
+  background-color: #002d62;
+}
+.team-KC {
+  background-color: #174885;
+}
+.team-LAA {
+  background-color: #ba0021;
+}
+.team-LAD {
+  background-color: #005a9c;
+}
+.team-MIA {
+  background-color: #ff6600;
+}
+.team-MIL {
+  background-color: #0a2351;
+}
+.team-MIN {
+  background-color: #002b5c;
+}
+.team-NYM {
+  background-color: #ff5910;
+}
+.team-NYY {
+  background-color: #132448;
+}
+.team-OAK {
+  background-color: #003831;
+}
+.team-PHI {
+  background-color: #e81828;
+}
+.team-PIT {
+  background-color: #fdb827;
+}
+.team-SD {
+  background-color: #002d62;
+}
+.team-SEA {
+  background-color: #005c5c;
+}
+.team-SF {
+  background-color: #fd5a1e;
+}
+.team-STL {
+  background-color: #c41e3a;
+}
+.team-TB {
+  background-color: #8fbce6;
+}
+.team-TEX {
+  background-color: #003278;
+}
+.team-TOR {
+  background-color: #134a8e;
+}
+.team-WSH {
+  background-color: #ab0003;
 }
