@@ -61,12 +61,23 @@ h2 + p {
   height: 20px;
 }
 
+.tooltip p {
+  align-items: center;
+}
+
 .description[data-page] {
   display: none;
 }
 
 .description[data-page].active {
   display: flex;
+}
+
+.pitch-mph-circle {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  margin-left: 2px;
 }
 
 .team-ATL {

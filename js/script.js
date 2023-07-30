@@ -134,6 +134,14 @@ async function drawTeamChart(page) {
     .attr("transform", `translate(${MARGIN},${MARGIN})`)
     .call(d3.axisLeft(yAxis));
 
+  const chartCirclesFill = d3
+    .scaleLinear()
+    .domain([
+      d3.min(allHomerunsData, (d) => d.pitch_mph),
+      d3.max(allHomerunsData, (d) => d.pitch_mph),
+    ])
+    .range(["rgba(0, 255, 0, 0.9)", "rgba(255, 0, 0, 0.9)"]);
+
   const chartCircles = svg
     .append("g")
     .attr("transform", `translate(${MARGIN},${MARGIN})`)
@@ -141,7 +149,6 @@ async function drawTeamChart(page) {
     .data(allHomerunsData)
     .enter()
     .append("circle")
-    .style("fill", "rgba(0, 0, 0, 0.5)")
     .attr("stroke", "#fff")
     .attr("stroke-width", 0.5)
     .on("mouseover", () => {
@@ -152,7 +159,15 @@ async function drawTeamChart(page) {
         .style("top", event.pageY - 88 + "px")
         .style("left", event.pageX + "px")
         .html(
-          `<p>Player: ${d.player}</p><p>Pitch (mph): ${d.pitch_mph}</p><p>Exit velocity (mph): ${d.ev_mph}</p><p>Launch angle (degree): ${d.launch_angle}</p><p>Distance (ft): ${d.distance_ft}</p>`
+          `<p>Player: ${d.player}</p><p>Pitch (mph): ${
+            d.pitch_mph
+          } <span class="pitch-mph-circle" style="background-color: ${chartCirclesFill(
+            d.pitch_mph
+          )};"></span></p><p>Exit velocity (mph): ${
+            d.ev_mph
+          }</p><p>Launch angle (degree): ${
+            d.launch_angle
+          }</p><p>Distance (ft): ${d.distance_ft}</p>`
         );
     })
     .on("mouseout", () => tooltip.style("visibility", "hidden"));
@@ -253,6 +268,7 @@ async function drawTeamChart(page) {
       chartCircles
         .attr("cx", (d) => cx(d.distance_ft))
         .attr("cy", (d) => cy(d.launch_angle))
+        .style("fill", (d) => chartCirclesFill(d.pitch_mph))
         .transition()
         .duration(1000)
         .attr("r", (d) => cr(d.ev_mph));
