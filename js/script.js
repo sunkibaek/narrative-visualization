@@ -126,14 +126,36 @@ async function drawTeamChart(page) {
     .attr(
       "transform",
       `translate(${MARGIN},${CHART_DIMENSION.height + MARGIN})`
-    )
-    .call(d3.axisBottom(xAxis));
+    );
+
+  chartXAxis.call(d3.axisBottom(xAxis));
+
+  chartXAxis
+    .append("text")
+    .classed("x-axis-title", true)
+    .attr("x", CHART_DIMENSION.width / 2)
+    .attr("y", 30)
+    .attr("fill", "#000")
+    .attr("font-weight", "bold")
+    .attr("text-anchor", "middle")
+    .text("Team");
 
   const chartYAxis = svg
     .append("g")
-    .attr("transform", `translate(${MARGIN},${MARGIN})`)
-    .call(d3.axisLeft(yAxis));
+    .attr("transform", `translate(${MARGIN},${MARGIN})`);
 
+  chartYAxis.call(d3.axisLeft(yAxis));
+
+  chartYAxis
+    .append("text")
+    .classed("y-axis-title", true)
+    .attr("x", -CHART_DIMENSION.height / 2)
+    .attr("y", -42)
+    .attr("transform", "rotate(-90)")
+    .attr("fill", "#000")
+    .attr("font-weight", "bold")
+    .attr("text-anchor", "middle")
+    .text("Pitches");
   const chartCirclesFill = d3
     .scaleLinear()
     .domain([
@@ -186,6 +208,8 @@ async function drawTeamChart(page) {
 
       chartXAxis.transition().duration(1000).call(d3.axisBottom(xAxis));
       chartYAxis.transition().duration(1000).call(d3.axisLeft(yAxis));
+      chartXAxis.select("text.x-axis-title").text("Team");
+      chartYAxis.select("text.y-axis-title").text("Pitches");
     }
 
     if (page === "2") {
@@ -208,6 +232,8 @@ async function drawTeamChart(page) {
 
       chartXAxis.transition().duration(1000).call(d3.axisBottom(xAxis));
       chartYAxis.transition().duration(1000).call(d3.axisLeft(inplayYAxis));
+      chartXAxis.select("text.x-axis-title").text("Team");
+      chartYAxis.select("text.y-axis-title").text("In plays");
     }
 
     if (page === "3") {
@@ -230,6 +256,8 @@ async function drawTeamChart(page) {
 
       chartXAxis.transition().duration(1000).call(d3.axisBottom(xAxis));
       chartYAxis.transition().duration(1000).call(d3.axisLeft(homerunYAxis));
+      chartXAxis.select("text.x-axis-title").text("Team");
+      chartYAxis.select("text.y-axis-title").text("Homeruns");
     }
 
     if (page === "4") {
@@ -277,7 +305,9 @@ async function drawTeamChart(page) {
         .transition()
         .duration(1000)
         .call(d3.axisBottom(allHomerunsXAxis));
+      chartXAxis.selectAll("text.x-axis-title").text("Distance (ft)");
       chartYAxis.transition().duration(1000).call(d3.axisLeft(cy));
+      chartYAxis.selectAll("text.y-axis-title").text("Launch angle (degree)");
     }
 
     showContent(page);
