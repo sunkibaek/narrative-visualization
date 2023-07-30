@@ -58,7 +58,8 @@ async function drawTeamChart(page) {
   data = data.slice().sort((a, b) => d3.ascending(a.pitches, b.pitches));
 
   const mostPitches = d3.max(data, (d) => d.pitches);
-  const leastPitches = d3.min(data, (d) => d.pitches);
+  const mostInplays = d3.max(data, (d) => d.inplay);
+  const mostHomeruns = d3.max(data, (d) => d.homerun);
 
   const allHomerunsData = await d3.csv(
     BASE_URL + "/data/all_homeruns.csv",
@@ -70,6 +71,10 @@ async function drawTeamChart(page) {
       player: d.player,
     })
   );
+
+  const longestDistance = d3.max(allHomerunsData, (d) => d.distance_ft);
+  const highestLaunchAngle = d3.max(allHomerunsData, (d) => d.launch_angle);
+
   const svg = d3.select("svg");
   const width = CHART_DIMENSION.width / data.length;
   const height = d3
@@ -123,12 +128,13 @@ async function drawTeamChart(page) {
           `<img src="${BASE_URL}/img/${d.team}.svg" /><p>Team: ${
             d.team
           }</p><p>Pitches: ${d.pitches} ${
-            d.pitches === mostPitches
-              ? "<i>(most)</i>"
-              : d.pitches === leastPitches
-              ? "<i>(least)</i>"
-              : ""
-          }</p><p>In play: ${d.inplay}</p><p>Homerun: ${d.homerun}</p>`
+            d.pitches === mostPitches ? "<i>(most)</i>" : ""
+          }</p><p>In play: ${d.inplay} ${
+            d.inplay === mostInplays ? "<i>(most)</i>" : ""
+          }
+          </p><p>Homerun: ${d.homerun} ${
+            d.homerun === mostHomeruns ? "<i>(most)</i>" : ""
+          }</p>`
         );
     })
     .on("mouseout", () => tooltip.style("visibility", "hidden"));
@@ -169,29 +175,91 @@ async function drawTeamChart(page) {
     .attr("text-anchor", "middle")
     .text("Pitches");
 
-  const annotations = [
-    {
-      note: { title: "Most pitches faced" },
-      x: CHART_DIMENSION.width + MARGIN - width / 2,
-      y: MARGIN + 10,
-      dy: -20,
-      dx: -100,
-    },
-  ];
+  const annotations = {
+    page1: [
+      {
+        note: { title: "Most pitches faced" },
+        x: CHART_DIMENSION.width + MARGIN - width / 2,
+        y: MARGIN + 10,
+        dy: -20,
+        dx: -100,
+      },
+    ],
+    page2: [
+      {
+        note: { title: "Most in plays" },
+        x: CHART_DIMENSION.width - 220,
+        y: MARGIN + 10,
+        dy: -20,
+        dx: -100,
+      },
+    ],
+    page3: [
+      {
+        note: { title: "Most homeruns" },
+        x: CHART_DIMENSION.width - 2,
+        y: MARGIN + 10,
+        dy: -20,
+        dx: -100,
+      },
+    ],
+    page4: [
+      {
+        note: { title: "Longest distance" },
+        x: CHART_DIMENSION.width + MARGIN,
+        y: MARGIN + 90,
+        dy: -20,
+        dx: -80,
+      },
+      {
+        note: { title: "Highest angle" },
+        x: CHART_DIMENSION.width - 410,
+        y: MARGIN,
+        dy: -20,
+        dx: 100,
+      },
+    ],
+  };
 
-  const makeAnnotation = d3
-    .annotation()
-    .type(d3.annotationLabel)
-    .annotations(annotations);
-
-  const annotation = d3
+  const page1Annotation = d3
     .select("svg")
     .append("g")
-    .call(makeAnnotation)
+    .call(
+      d3.annotation().type(d3.annotationLabel).annotations(annotations.page1)
+    );
+
+  page1Annotation
     .style("opacity", 0)
     .transition()
     .duration(1000)
     .style("opacity", 1);
+
+  const page2Annotation = d3
+    .select("svg")
+    .append("g")
+    .call(
+      d3.annotation().type(d3.annotationLabel).annotations(annotations.page2)
+    );
+
+  page2Annotation.style("opacity", 0);
+
+  const page3Annotation = d3
+    .select("svg")
+    .append("g")
+    .call(
+      d3.annotation().type(d3.annotationLabel).annotations(annotations.page3)
+    );
+
+  page3Annotation.style("opacity", 0);
+
+  const page4Annotation = d3
+    .select("svg")
+    .append("g")
+    .call(
+      d3.annotation().type(d3.annotationLabel).annotations(annotations.page4)
+    );
+
+  page4Annotation.style("opacity", 0);
 
   const chartCirclesFill = d3
     .scaleLinear()
@@ -224,9 +292,11 @@ async function drawTeamChart(page) {
             d.pitch_mph
           )};"></span></p><p>Exit velocity (mph): ${
             d.ev_mph
-          }</p><p>Launch angle (degree): ${
-            d.launch_angle
-          }</p><p>Distance (ft): ${d.distance_ft}</p>`
+          }</p><p>Launch angle (degree): ${d.launch_angle} ${
+            d.launch_angle === highestLaunchAngle ? "<i>(highest)</i>" : ""
+          }</p><p>Distance (ft): ${d.distance_ft} ${
+            d.distance_ft === longestDistance ? "<i>(longest)</i>" : ""
+          }</p>`
         );
     })
     .on("mouseout", () => tooltip.style("visibility", "hidden"));
@@ -247,6 +317,11 @@ async function drawTeamChart(page) {
       chartYAxis.transition().duration(1000).call(d3.axisLeft(yAxis));
       chartXAxis.select("text.x-axis-title").text("Team");
       chartYAxis.select("text.y-axis-title").text("Pitches");
+
+      page1Annotation.transition().duration(1000).style("opacity", 1);
+      page2Annotation.transition().duration(1000).style("opacity", 0);
+      page3Annotation.transition().duration(1000).style("opacity", 0);
+      page4Annotation.transition().duration(1000).style("opacity", 0);
     }
 
     if (page === "2") {
@@ -271,6 +346,11 @@ async function drawTeamChart(page) {
       chartYAxis.transition().duration(1000).call(d3.axisLeft(inplayYAxis));
       chartXAxis.select("text.x-axis-title").text("Team");
       chartYAxis.select("text.y-axis-title").text("In plays");
+
+      page1Annotation.transition().duration(1000).style("opacity", 0);
+      page2Annotation.transition().duration(1000).style("opacity", 1);
+      page3Annotation.transition().duration(1000).style("opacity", 0);
+      page4Annotation.transition().duration(1000).style("opacity", 0);
     }
 
     if (page === "3") {
@@ -295,6 +375,11 @@ async function drawTeamChart(page) {
       chartYAxis.transition().duration(1000).call(d3.axisLeft(homerunYAxis));
       chartXAxis.select("text.x-axis-title").text("Team");
       chartYAxis.select("text.y-axis-title").text("Homeruns");
+
+      page1Annotation.transition().duration(1000).style("opacity", 0);
+      page2Annotation.transition().duration(1000).style("opacity", 0);
+      page3Annotation.transition().duration(1000).style("opacity", 1);
+      page4Annotation.transition().duration(1000).style("opacity", 0);
     }
 
     if (page === "4") {
@@ -345,6 +430,11 @@ async function drawTeamChart(page) {
       chartXAxis.selectAll("text.x-axis-title").text("Distance (ft)");
       chartYAxis.transition().duration(1000).call(d3.axisLeft(cy));
       chartYAxis.selectAll("text.y-axis-title").text("Launch angle (degree)");
+
+      page1Annotation.transition().duration(1000).style("opacity", 0);
+      page2Annotation.transition().duration(1000).style("opacity", 0);
+      page3Annotation.transition().duration(1000).style("opacity", 0);
+      page4Annotation.transition().duration(1000).style("opacity", 1);
     }
 
     showContent(page);
