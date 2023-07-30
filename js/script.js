@@ -52,15 +52,20 @@ async function showContent(page) {
 }
 
 async function drawTeamChart(page) {
-  let data = await d3.csv("../data/homerun_by_team.csv");
+  let data = await d3.csv(
+    "https://sunkibaek.github.io/narrative-visualization/data/homerun_by_team.csv"
+  );
   data = data.slice().sort((a, b) => d3.ascending(a.pitches, b.pitches));
-  const allHomerunsData = await d3.csv("../data/all_homeruns.csv", (d) => ({
-    distance_ft: +d.distance_ft,
-    launch_angle: +d.launch_angle,
-    ev_mph: +d.ev_mph,
-    pitch_mph: +d.pitch_mph,
-    player: d.player,
-  }));
+  const allHomerunsData = await d3.csv(
+    "https://sunkibaek.github.io/narrative-visualization/data/all_homeruns.csv",
+    (d) => ({
+      distance_ft: +d.distance_ft,
+      launch_angle: +d.launch_angle,
+      ev_mph: +d.ev_mph,
+      pitch_mph: +d.pitch_mph,
+      player: d.player,
+    })
+  );
   const svg = d3.select("svg");
   const width = CHART_DIMENSION.width / data.length;
   const height = d3
