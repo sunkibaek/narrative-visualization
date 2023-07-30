@@ -51,9 +51,16 @@ async function showContent(page) {
     .classed("active", true);
 }
 
-async function drawChart(page) {
+async function drawTeamChart(page) {
   let data = await d3.csv("../data/homerun_by_team.csv");
   data = data.slice().sort((a, b) => d3.ascending(a.pitches, b.pitches));
+  const allHomerunsData = await d3.csv("../data/all_homeruns.csv", (d) => ({
+    distance_ft: +d.distance_ft,
+    launch_angle: +d.launch_angle,
+    ev_mph: +d.ev_mph,
+    pitch_mph: +d.pitch_mph,
+    player: d.player,
+  }));
   const svg = d3.select("svg");
   const width = CHART_DIMENSION.width / data.length;
   const height = d3
@@ -109,7 +116,7 @@ async function drawChart(page) {
     })
     .on("mouseout", () => tooltip.style("visibility", "hidden"));
 
-  svg
+  const chartXAxis = svg
     .append("g")
     .attr(
       "transform",
@@ -122,16 +129,42 @@ async function drawChart(page) {
     .attr("transform", `translate(${MARGIN},${MARGIN})`)
     .call(d3.axisLeft(yAxis));
 
-  d3.selectAll(".navigation button").on("click", function (event) {
+  const chartCircles = svg
+    .append("g")
+    .attr("transform", `translate(${MARGIN},${MARGIN})`)
+    .selectAll("circle")
+    .data(allHomerunsData)
+    .enter()
+    .append("circle")
+    .style("fill", "rgba(0, 0, 0, 0.5)")
+    .attr("stroke", "#fff")
+    .attr("stroke-width", 0.5)
+    .on("mouseover", () => {
+      tooltip.style("visibility", "visible");
+    })
+    .on("mousemove", (event, d) => {
+      tooltip
+        .style("top", event.pageY - 88 + "px")
+        .style("left", event.pageX + "px")
+        .html(
+          `<p>Player: ${d.player}</p><p>Pitch (mph): ${d.pitch_mph}</p><p>Exit velocity (mph): ${d.ev_mph}</p><p>Launch angle (degree): ${d.launch_angle}</p><p>Distance (ft): ${d.distance_ft}</p>`
+        );
+    })
+    .on("mouseout", () => tooltip.style("visibility", "hidden"));
+
+  d3.selectAll(".navigation button").on("click", async function (event) {
     const page = event.target.dataset.page;
 
     if (page === "1") {
+      chartCircles.transition().duration(1000).attr("r", 0);
+
       chartBars
         .transition()
         .duration(1000)
         .attr("height", (d) => height(d.pitches))
         .attr("y", (d) => CHART_DIMENSION.height - height(d.pitches));
 
+      chartXAxis.transition().duration(1000).call(d3.axisBottom(xAxis));
       chartYAxis.transition().duration(1000).call(d3.axisLeft(yAxis));
     }
 
@@ -145,12 +178,15 @@ async function drawChart(page) {
         .domain([0, d3.max(data, (d) => d.inplay)])
         .range([CHART_DIMENSION.height, 0]);
 
+      chartCircles.transition().duration(1000).attr("r", 0);
+
       chartBars
         .transition()
         .duration(1000)
         .attr("height", (d) => inplayHeight(d.inplay))
         .attr("y", (d) => CHART_DIMENSION.height - inplayHeight(d.inplay));
 
+      chartXAxis.transition().duration(1000).call(d3.axisBottom(xAxis));
       chartYAxis.transition().duration(1000).call(d3.axisLeft(inplayYAxis));
     }
 
@@ -164,13 +200,63 @@ async function drawChart(page) {
         .domain([0, d3.max(data, (d) => d.homerun)])
         .range([CHART_DIMENSION.height, 0]);
 
+      chartCircles.transition().duration(1000).attr("r", 0);
+
       chartBars
         .transition()
         .duration(1000)
         .attr("height", (d) => homerunHeight(d.homerun))
         .attr("y", (d) => CHART_DIMENSION.height - homerunHeight(d.homerun));
 
+      chartXAxis.transition().duration(1000).call(d3.axisBottom(xAxis));
       chartYAxis.transition().duration(1000).call(d3.axisLeft(homerunYAxis));
+    }
+
+    if (page === "4") {
+      chartBars.transition().duration(1000).attr("height", 0).attr("y", 0);
+
+      const cx = d3
+        .scaleLinear()
+        .domain([
+          d3.min(allHomerunsData, (d) => d.distance_ft),
+          d3.max(allHomerunsData, (d) => d.distance_ft),
+        ])
+        .range([0, CHART_DIMENSION.width]);
+      const cy = d3
+        .scaleLinear()
+        .domain([
+          d3.min(allHomerunsData, (d) => d.launch_angle),
+          d3.max(allHomerunsData, (d) => d.launch_angle),
+        ])
+        .range([CHART_DIMENSION.height, 0]);
+      const cr = d3
+        .scaleLinear()
+        .domain([
+          d3.min(allHomerunsData, (d) => d.ev_mph),
+          d3.max(allHomerunsData, (d) => d.ev_mph),
+        ])
+        .range([3, 8]);
+
+      const allHomerunsXAxis = d3
+        .scaleLinear()
+        .domain([
+          d3.min(allHomerunsData, (d) => d.distance_ft),
+          d3.max(allHomerunsData, (d) => d.distance_ft),
+        ])
+        .range([0, CHART_DIMENSION.width]);
+
+      chartCircles
+        .attr("cx", (d) => cx(d.distance_ft))
+        .attr("cy", (d) => cy(d.launch_angle))
+        .transition()
+        .duration(1000)
+        .attr("r", (d) => cr(d.ev_mph));
+
+      chartXAxis
+        .transition()
+        .duration(1000)
+        .call(d3.axisBottom(allHomerunsXAxis));
+      chartYAxis.transition().duration(1000).call(d3.axisLeft(cy));
     }
 
     showContent(page);
@@ -180,11 +266,7 @@ async function drawChart(page) {
 async function main(page) {
   page = page || "1";
 
-  await drawChart(page);
-}
-
-function handlePageClick(page) {
-  main(page);
+  await drawTeamChart(page);
 }
 
 main("1");
