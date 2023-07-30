@@ -44,6 +44,8 @@ const CHART_DIMENSION = {
   height: AREA_DIMENSION.height - MARGIN * 2,
 };
 
+const BASE_URL = "https://sunkibaek.github.io/narrative-visualization";
+
 async function showContent(page) {
   await d3.selectAll(".description[data-page]").classed("active", false);
   await d3
@@ -52,20 +54,15 @@ async function showContent(page) {
 }
 
 async function drawTeamChart(page) {
-  let data = await d3.csv(
-    "https://sunkibaek.github.io/narrative-visualization/data/homerun_by_team.csv"
-  );
+  let data = await d3.csv(BASE_URL + "/homerun_by_team.csv");
   data = data.slice().sort((a, b) => d3.ascending(a.pitches, b.pitches));
-  const allHomerunsData = await d3.csv(
-    "https://sunkibaek.github.io/narrative-visualization/data/all_homeruns.csv",
-    (d) => ({
-      distance_ft: +d.distance_ft,
-      launch_angle: +d.launch_angle,
-      ev_mph: +d.ev_mph,
-      pitch_mph: +d.pitch_mph,
-      player: d.player,
-    })
-  );
+  const allHomerunsData = await d3.csv(BASE_URL + "/all_homeruns.csv", (d) => ({
+    distance_ft: +d.distance_ft,
+    launch_angle: +d.launch_angle,
+    ev_mph: +d.ev_mph,
+    pitch_mph: +d.pitch_mph,
+    player: d.player,
+  }));
   const svg = d3.select("svg");
   const width = CHART_DIMENSION.width / data.length;
   const height = d3
@@ -116,7 +113,7 @@ async function drawTeamChart(page) {
         .style("top", event.pageY - 88 + "px")
         .style("left", event.pageX + "px")
         .html(
-          `<img src="../img/${d.team}.svg" /><p>Team: ${d.team}</p><p>Pitches: ${d.pitches}</p><p>In play: ${d.inplay}</p><p>Homerun: ${d.homerun}</p>`
+          `<img src="${BASE_URL}/img/${d.team}.svg" /><p>Team: ${d.team}</p><p>Pitches: ${d.pitches}</p><p>In play: ${d.inplay}</p><p>Homerun: ${d.homerun}</p>`
         );
     })
     .on("mouseout", () => tooltip.style("visibility", "hidden"));
