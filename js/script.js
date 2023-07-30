@@ -56,6 +56,10 @@ async function showContent(page) {
 async function drawTeamChart(page) {
   let data = await d3.csv(BASE_URL + "/data/homerun_by_team.csv");
   data = data.slice().sort((a, b) => d3.ascending(a.pitches, b.pitches));
+
+  const mostPitches = d3.max(data, (d) => d.pitches);
+  const leastPitches = d3.min(data, (d) => d.pitches);
+
   const allHomerunsData = await d3.csv(
     BASE_URL + "/data/all_homeruns.csv",
     (d) => ({
@@ -116,7 +120,15 @@ async function drawTeamChart(page) {
         .style("top", event.pageY - 88 + "px")
         .style("left", event.pageX + "px")
         .html(
-          `<img src="${BASE_URL}/img/${d.team}.svg" /><p>Team: ${d.team}</p><p>Pitches: ${d.pitches}</p><p>In play: ${d.inplay}</p><p>Homerun: ${d.homerun}</p>`
+          `<img src="${BASE_URL}/img/${d.team}.svg" /><p>Team: ${
+            d.team
+          }</p><p>Pitches: ${d.pitches} ${
+            d.pitches === mostPitches
+              ? "<i>(most)</i>"
+              : d.pitches === leastPitches
+              ? "<i>(least)</i>"
+              : ""
+          }</p><p>In play: ${d.inplay}</p><p>Homerun: ${d.homerun}</p>`
         );
     })
     .on("mouseout", () => tooltip.style("visibility", "hidden"));
@@ -156,6 +168,31 @@ async function drawTeamChart(page) {
     .attr("font-weight", "bold")
     .attr("text-anchor", "middle")
     .text("Pitches");
+
+  const annotations = [
+    {
+      note: { title: "Most pitches faced" },
+      x: CHART_DIMENSION.width + MARGIN - width / 2,
+      y: MARGIN + 10,
+      dy: -20,
+      dx: -100,
+    },
+  ];
+
+  const makeAnnotation = d3
+    .annotation()
+    .type(d3.annotationLabel)
+    .annotations(annotations);
+
+  const annotation = d3
+    .select("svg")
+    .append("g")
+    .call(makeAnnotation)
+    .style("opacity", 0)
+    .transition()
+    .duration(1000)
+    .style("opacity", 1);
+
   const chartCirclesFill = d3
     .scaleLinear()
     .domain([
