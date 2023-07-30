@@ -24,12 +24,16 @@ h2 + p {
   padding: 20px 0;
 }
 
-.navigation a {
+.navigation button {
   border-color: #000;
   border-style: solid;
   border-width: 1px;
   color: #000;
   padding: 4px 8px;
+}
+
+.navigation button:hover {
+  cursor: pointer;
 }
 
 .description {
@@ -55,6 +59,14 @@ h2 + p {
 .tooltip img {
   width: 20px;
   height: 20px;
+}
+
+.description[data-page] {
+  display: none;
+}
+
+.description[data-page].active {
+  display: flex;
 }
 
 .team-ATL {
